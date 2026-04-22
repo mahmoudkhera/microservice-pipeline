@@ -30,6 +30,55 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/frontend:${{ inputs.version }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:buildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-frontend:${{ inputs.version }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache,mode=max
+
+  build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./devops2-notifications
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-backend:${{ inputs.version }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache,mode=max
+  build-notifications:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./devops2-notifications
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-notifications:${{ inputs.version }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache,mode=max
