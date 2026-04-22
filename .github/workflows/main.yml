@@ -9,7 +9,6 @@ on:
         default: "latest"
 
 jobs:
-
   build-frontend:
     runs-on: ubuntu-latest
 
@@ -17,22 +16,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to Registry
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME}}
+          username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
-          context:  ./frontend
+          context: ./frontend
           push: true
-          tags: ${{ inputs.version }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/devops2-frontend:buildcache,mode=max
-            
-
-
+          tags: ${{ secrets.DOCKER_USERNAME }}/frontend:${{ inputs.version }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:buildcache,mode=max
