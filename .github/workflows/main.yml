@@ -85,7 +85,7 @@ jobs:
   integration-test:
       name: Integration Test
       runs-on: ubuntu-latest
-      environment: dev-env
+      environment: 'dev-env'
       needs: [build-frontend, build-backend, build-notifications]
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
