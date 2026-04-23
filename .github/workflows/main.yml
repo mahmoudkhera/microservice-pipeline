@@ -93,13 +93,19 @@ jobs:
         SMTP_USER: ${{ secrets.SMTP_USER }}
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         SMTP_HOST: ${{ vars.SMTP_HOST }}
+        SMTP_PORT: 587
         SMTP_FROM: ${{ vars.SMTP_FROM }}
         ALERT_RECIPIENT: ${{ vars.ALERT_RECIPIENT }}
   
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-  
+        - name: Debug env variables
+          run: |
+            echo "DOCKER_USERNAME=$DOCKER_USERNAME"
+            echo "VERSION=$VERSION"
+            echo "SMTP_HOST=$SMTP_HOST"
+            echo "SMTP_PORT=$SMTP_PORT"
         - name: Login to Docker Hub
           uses: docker/login-action@v3
           with:
@@ -118,7 +124,7 @@ jobs:
         - name: Wait for services to be ready
           run: |
            echo "Waiting for services..."
-           for i in {1..60}; do
+           for i in {1..20}; do
               BACKEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/health || true)
               NOITICATION=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3002/health || true)
               FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ || true)
