@@ -11,7 +11,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - CORS_ORIGIN=*
       - NOTIFICATION_URL=http://notification:3002/notify
-      - ALERT_RECIPIENT=test@example.com
+      - ALERT_RECIPIENT=${ALERT_RECIPIENT}
     ports:
       - "3000:3000"
 
