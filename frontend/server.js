@@ -6,7 +6,7 @@ const app = express();
 app.use(express.static(__dirname));
 
 const PORT = process.env.FRONTEND_PORT || 8000;
-const HOST = process.env.FRONTEND_HOST || 'localhost';
+const HOST = process.env.FRONTEND_HOST || '0.0.0.0';
 const API = process.env.API || 'http://localhost:3000'
 
 // Runtime config — the browser fetches this before anything else

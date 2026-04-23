@@ -1,0 +1,55 @@
+
+
+services:
+
+  inventory:
+    image: ${DOCKER_USERNAME}/devops2-backend:${VERSION}
+    container_name: ci-inventory
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGIN=*
+      - NOTIFICATION_URL=http://notification:3002/notify
+      - ALERT_RECIPIENT=test@example.com
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ci-net
+
+  notification:
+    image: ${DOCKER_USERNAME}/devops2-notifications:${VERSION}
+    container_name: ci-notification
+    environment:
+      - HOST=${NOTIFICATION_HOST}
+      - PORT=${NOTIFICATION_PORT}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+    ports:
+      - "3002:3002"
+    networks:
+      - ci-net
+
+  frontend:
+    image: ${DOCKER_USERNAME}/devops2-frontend:${VERSION}
+    container_name: ci-frontend
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - API=http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - inventory
+    networks:
+      - ci-net
+
+networks:
+  ci-net:
+    driver: bridge
