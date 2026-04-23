@@ -4,7 +4,7 @@ A microservices-based inventory management system with real-time low-stock email
 
 ---
 
-## 🎯 What It Does
+##  What It Does
 
 StockWatch monitors product inventory and sends automated email alerts when stock levels drop below configurable thresholds. Users can:
 
@@ -15,15 +15,14 @@ StockWatch monitors product inventory and sends automated email alerts when stoc
 - Configure the email recipient for alerts
 - See a history of sent alerts
 
-## 🏗️ Architecture
 
 StockWatch is composed of **three microservices** plus a PostgreSQL database, orchestrated with Docker Compose:
 
 
 ### Services
 
-| Service | Stack | Port | Responsibility |
-|---------|-------|------|----------------|
+
+
 | **Frontend** | Node.js + Express + Vanilla JS | 8000 | Serves the dashboard UI |
 | **Inventory** | Node.js + Express + pg | 3000 | Product CRUD, threshold evaluation, alert triggering |
 | **Notification** | Python + Flask + smtplib | 3002 | Sends emails via SMTP |
@@ -81,7 +80,7 @@ Navigate to **http://localhost:8000** in your browser. You should see the StockW
 
 ---
 
-## ⚙️ Environment Variables
+##  Environment Variables
 
 Create a `.env` file at the project root with the following:
 
@@ -117,7 +116,7 @@ SMTP_FROM=your-email@gmail.com
 
 ```
 
-> ⚠️ **Gmail setup**: Enable 2FA on your Google account, then generate an App Password at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords). Use this 16-character code as `SMTP_PASSWORD` — not your regular password.
+> **Gmail setup**: Enable 2FA on your Google account, then generate an App Password at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords). Use this 16-character code as `SMTP_PASSWORD` — not your regular password.
 
 
 
