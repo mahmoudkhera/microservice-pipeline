@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         
-        service: [frontend, inventory, notification-service]
+        service: [frontend, inventory-service, notification-service]
     steps:
       - uses: actions/checkout@v4
 
