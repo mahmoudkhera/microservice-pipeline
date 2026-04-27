@@ -1,12 +1,9 @@
 name: Build & Push with Version
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Docker image version (tag)"
-        required: true
-        default: "latest"
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   detect-changes:
@@ -80,7 +77,7 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-frontend:${{ inputs.version }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-frontend:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache,mode=max
 
@@ -107,7 +104,7 @@ jobs:
         with:
           context: ./inventory-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-backend:${{ inputs.version }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-backend:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache,mode=max
   build-notifications:
@@ -133,17 +130,22 @@ jobs:
         with:
           context: ./notification-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-notifications:${{ inputs.version }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-notifications:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache,mode=max
   integration-test:
+      
       name: Integration Test
+      needs: [detect-changes,build-frontend, build-backend, build-notifications]
+      if: |
+            (needs.detect-changes.outputs.frontend == 'true') ||
+            (needs.detect-changes.outputs.inventory == 'true') ||
+            (needs.detect-changes.outputs.notification == 'true')
       runs-on: ubuntu-latest
       environment: 'dev-env'
-      needs: [build-frontend, build-backend, build-notifications]
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        VERSION: ${{ inputs.version }}
+        VERSION: ${{ github.sha }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         SMTP_USER: ${{ secrets.SMTP_USER }}
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
