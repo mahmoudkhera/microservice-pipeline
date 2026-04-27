@@ -20,7 +20,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          base: ${{ github.ref_name }} 
+          base:  HEAD~1
           filters: |
             frontend:
               - 'frontend/**'
