@@ -27,7 +27,7 @@ jobs:
             inventory:
               - 'inventory-service/**'
             notification:
-              - 'notification-service/**
+              - 'notification-service/**'
   vulnerability-scanning:
       needs: detect-changes
       runs-on: ubuntu-latest
