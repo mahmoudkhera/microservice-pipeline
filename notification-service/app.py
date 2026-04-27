@@ -153,3 +153,4 @@ if __name__ == '__main__':
     log.info(f'📊 Log level: {LOG_LEVEL}')
     log.info('=' * 60)
     app.run(host=HOST, port=PORT)
+    log.info(f'trigger first commit')

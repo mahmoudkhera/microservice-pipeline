@@ -17,5 +17,6 @@ app.get('/config.js', (req, res) => {
 
 app.listen(PORT, HOST, () => {
   console.log(`Frontend running on http://${HOST}:${PORT}`);
-  console.log(`public api test  ${process.env.API}`);
+  console.log(`public api test     ${process.env.API}`);
+  console.log(` trigger first commit `);
 });
