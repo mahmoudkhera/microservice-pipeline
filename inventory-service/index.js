@@ -173,7 +173,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'inventory' }
 initDb().then(() => {
   app.listen(PORT, HOST, () => {
     console.log(`Inventory service on http://${HOST}:${PORT}`);
-    console.log(`trigger test commit `);
+    console.log(`trigger test2 commit `);
     
   });
 }).catch(err => {
