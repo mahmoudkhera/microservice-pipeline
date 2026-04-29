@@ -12,7 +12,7 @@ jobs:
           GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
         run: |
           git config --global credential.helper store
-          echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
+          echo "https://${GITOPS_PAT}:x-oauth-basic@github.com" > ~/.git-credentials
           
           rm -rf gitops
           
@@ -23,11 +23,11 @@ jobs:
           # get the last pushed image tage 
           export FRONTEND_TAG=$(curl -s "https://hub.docker.com/v2/repositories/mahmoudkhera/devops2-frontend/tags?page_size=1&ordering=last_updated"   | jq  '.results[0].name')
           echo $FRONTEND_TAG
-          sed -i 's|image_tag: .*|image_tag:  $FRONTEND_TAG|' values-frontend.yaml 
+          sed -i "s|image_tag: .*|image_tag:  $FRONTEND_TAG|" values-frontend.yaml 
           
           git config --global user.name "${{ vars.GIT_NAME }}"
           git config --global user.email "${{ vars.GIT_EMAIL }}"
           git add values-frontend.yaml
           git commit -m "Update image to ${{ github.sha }}"
           
-          git push -f https://${GIT_TOKEN}@github.com/mahmoudkhera/grade-api-gitops.git main
+          git push -f https://${GITOPS_PAT}@github.com/mahmoudkhera/grade-api-gitops.git main
