@@ -1,33 +1,75 @@
-name: Update GitOps repository
+name: Deploy to gitops repo
+
 on:
-  workflow_dispatch:   
+  workflow_dispatch:
+    inputs:
+      deploy_type:
+        description: "Choose deployment type"
+        required: true
+        type: choice
+        options:
+          - latest       
+          - last_commit   
 
 jobs:
-  Update-GitOps-repository:
+
+  deploy_latest:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy_type == 'latest' }}
     steps:
-      - name: Update GitOps repository
+      - name: Update GitOps with latest Docker Hub tag
         shell: bash
         env:
           GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
         run: |
           git config --global credential.helper store
           echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
-          
+
           rm -rf gitops
-          
           git clone https://github.com/mahmoudkhera/grade-api-gitops.git gitops
           cd gitops/helm_chart
-          echo "$pwd"
 
-          # get the last pushed image tage 
-          export FRONTEND_TAG=$(curl -s "https://hub.docker.com/v2/repositories/mahmoudkhera/devops2-frontend/tags?page_size=1&ordering=last_updated"   | jq  '.results[0].name')
-          echo $FRONTEND_TAG
-          sed -i "s|image_tag: .*|image_tag: $FRONTEND_TAG|" values-frontend.yaml 
-          
-          git config --global user.name "${{ vars.GIT_NAME }}"
-          git config --global user.email "${{ vars.GIT_EMAIL }}"
+          # Get latest tag from Docker Hub
+          export FRONTEND_TAG=latest
+
+          echo " tag: $FRONTEND_TAG"
+          sed -i "s|image_tag: .*|image_tag: $FRONTEND_TAG|" values-frontend.yaml
+
+          git config --global user.name "mahmoud khera"
+          git config --global user.email "mahmoudkhera20@gmail.com"
           git add values-frontend.yaml
-          git commit -m "Update image to ${{ github.sha }}"
-          
+          git commit -m "Update image to $FRONTEND_TAG"
           git push -f https://${GIT_TOKEN}@github.com/mahmoudkhera/grade-api-gitops.git main
+
+          echo " Deployed latest tag: $FRONTEND_TAG"
+
+
+  deploy_last_commit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy_type == 'last_commit' }}
+    steps:
+      - name: Update GitOps with current commit SHA
+        shell: bash
+        env:
+          GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
+        run: |
+          git config --global credential.helper store
+          echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
+
+          rm -rf gitops
+          git clone https://github.com/mahmoudkhera/grade-api-gitops.git gitops
+          cd gitops/helm_chart
+
+          # Use current commit SHA as the tag
+          export FRONTEND_TAG=${{ github.sha }}
+
+          echo " Commit SHA: $FRONTEND_TAG"
+          sed -i "s|image_tag: .*|image_tag: $FRONTEND_TAG|" values-frontend.yaml
+
+          git config --global user.name "mahmoud khera"
+          git config --global user.email "mahmoudkhera20@gmail.com"
+          git add values-frontend.yaml
+          git commit -m "Update image to $FRONTEND_TAG"
+          git push -f https://${GIT_TOKEN}@github.com/mahmoudkhera/grade-api-gitops.git main
+
+          echo " Deployed commit SHA: $FRONTEND_TAG"
