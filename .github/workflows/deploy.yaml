@@ -16,11 +16,12 @@ jobs:
   deploy_latest:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.deploy_type == 'latest' }}
+    env:
+      GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
     steps:
       - name: Clone GitOps repository
         shell: bash
-        env:
-          GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
+
         run: |
           git config --global credential.helper store
           echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
@@ -67,11 +68,12 @@ jobs:
   deploy_last_commit:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.deploy_type == 'last_commit' }}
+    env:
+      GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
     steps:
       - name: Clone GitOps repository
         shell: bash
-        env:
-          GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
+
         run: |
           git config --global credential.helper store
           echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
