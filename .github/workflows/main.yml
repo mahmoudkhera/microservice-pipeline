@@ -1,8 +1,36 @@
 name: Build & Push with Version
 
 on:
+  workflow_dispatch:
+    inputs:
+      frontend_tag:
+        description: "Frontend image tag (leave empty to use commit SHA)"
+        required: true
+        type: choice
+        options:
+          - latest       
+          - commited 
+      inventory_tag:
+        description: "Inventory image tag (leave empty to use commit SHA)"
+        required: true
+        type: choice
+        options:
+          - latest       
+          - commited 
+      notifications_tag:
+        description: "Notifications image tag (leave empty to use commit SHA)"
+        required: true
+        type: choice
+        options:
+          - latest       
+          - commited 
   push:
     branches: [main]
+    paths:
+    - 'frontend/**'
+    - 'inventory-service/**'
+    - 'notification-service/**'
+    - '.github/workflows/main.yml'
   pull_request:
 
 jobs:
@@ -57,12 +85,22 @@ jobs:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     outputs:
-     tag: ${{ github.sha }}
+     tag: ${{ steps.set-tag.outputs.tag }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Determine image tag
+        id: set-tag
+        run: |
+          if [ "${{ github.event.inputs.frontend_tag}}" = "latest" ]; then
+            TAG="${{ github.event.inputs.frontend_tag }}"
+            echo "Using manual tag: $TAG"
+          else
+            TAG="${{ github.sha }}"
+            echo "Using commit SHA: $TAG"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -71,20 +109,21 @@ jobs:
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
+      
       - name: Debug tag
-        run: echo "Tag will be → ${{ github.sha }}"
+        run: echo "Tag will be  $TAG"
 
       - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-frontend:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-frontend:$TAG
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-frontend:buildcache,mode=max
+          
      
       - name: Save SHA to cache
-        run: echo "${{ github.sha }}" > frontend-sha.txt
+        run: echo "$TAG" > frontend-sha.txt
       - name: Cache frontend SHA
         uses: actions/cache/save@v4
         with:
@@ -99,6 +138,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Determine image tag
+        id: set-tag
+        run: |
+          if [ "${{ github.event.inputs.inventory_tag}}" = "latest" ]; then
+            TAG="${{ github.event.inputs.inventory_tag }}"
+            echo "Using manual tag: $TAG"
+          else
+            TAG="${{ github.sha }}"
+            echo "Using commit SHA: $TAG"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -114,12 +164,12 @@ jobs:
         with:
           context: ./inventory-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-inventory:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-inventory:$TAG
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-backend:buildcache,mode=max
+          
   
       - name: Save SHA to cache
-        run: echo "${{ github.sha }}" > inventory-sha.txt
+        run: echo "$TAG" > inventory-sha.txt
       - name: Cache frontend SHA
         uses: actions/cache/save@v4
         with:
@@ -135,7 +185,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Determine image tag
+        id: set-tag
+        run: |
+          if [ "${{ github.event.inputs.notifications_tag}}" = "latest" ]; then
+            TAG="${{ github.event.inputs.notifications_tag }}"
+            echo "Using manual tag: $TAG"
+          else
+            TAG="${{ github.sha }}"
+            echo "Using commit SHA: $TAG"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -150,12 +210,12 @@ jobs:
         with:
           context: ./notification-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-notifications:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops2-notifications:$TAG
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/devops2-notifications:buildcache,mode=max
+          
  
       - name: Save SHA to cache
-        run: echo "${{ github.sha }}" > notifications-sha.txt
+        run: echo "$TAG" > notifications-sha.txt
       - name: Cache frontend SHA
         uses: actions/cache/save@v4
         with:
