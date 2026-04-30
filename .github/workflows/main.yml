@@ -4,21 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       frontend_tag:
-        description: "Frontend image tag (leave empty to use commit SHA)"
+        description: "Frontend image tag "
         required: true
         type: choice
         options:
           - latest       
           - commited 
       inventory_tag:
-        description: "Inventory image tag (leave empty to use commit SHA)"
+        description: "Inventory image tag "
         required: true
         type: choice
         options:
           - latest       
           - commited 
       notifications_tag:
-        description: "notifications image tag (leave empty to use commit SHA)"
+        description: "notifications image tag "
         required: true
         type: choice
         options:
@@ -38,7 +38,7 @@ on:
 jobs:
   detect-changes:
     if: |
-      github.event_name == 'push' 
+      github.event_name != 'push' 
       
     runs-on: ubuntu-latest
     outputs:
